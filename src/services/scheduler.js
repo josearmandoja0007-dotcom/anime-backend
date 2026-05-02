@@ -2,18 +2,24 @@ const cron = require('node-cron');
 const { fetchAnimes } = require('./animeService');
 const Anime = require('../models/Anime');
 
-// "*/5 * * * *" = a cada 5 minutos
 cron.schedule('*/5 * * * *', async () => {
   console.log('Atualizando animes...');
+
   const animes = await fetchAnimes();
 
-  for (const anime of animes) {
-    await Anime.findOneAndUpdate(
-      { id: anime.id },   // critério de busca
-      anime,              // dados a atualizar
-      { upsert: true }    // cria se não existir
-    );
-  }
+  await Promise.all(
+    animes.map(anime =>
+      Anime.findOneAndUpdate(
+        { mal_id: anime.mal_id },
+        {
+          mal_id: anime.mal_id,
+          title: anime.title,
+          genres: anime.genres,
+        },
+        { upsert: true, new: true }
+      )
+    )
+  );
 
   console.log('Base atualizada!');
 });

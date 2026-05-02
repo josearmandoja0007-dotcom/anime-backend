@@ -1,10 +1,16 @@
 const mongoose = require('mongoose');
 
+const GenreSchema = new mongoose.Schema({
+  mal_id: Number,
+  type: String,
+  name: String,
+  url: String,
+}, { _id: false });
+
 const AnimeSchema = new mongoose.Schema({
-  id: String,
+  mal_id: { type: Number, unique: true },
   title: String,
-  genres: [String],
-  // adicione outros campos conforme a API retornar
+  genres: { type: [GenreSchema], default: [] },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Anime', AnimeSchema);
